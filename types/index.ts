@@ -145,6 +145,7 @@ export interface Delivery {
 
 export interface DeliveryState {
     deliveries: Delivery[];
+    history: Delivery[];
     currentDelivery: Delivery | null;
     loading: boolean;
     error: string | null;

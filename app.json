@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Liyt_Mobil",
+    "name": "LIYT Driver",
     "slug": "Liyt_Mobil",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo only.png",
     "scheme": "liytmobil",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,12 +14,13 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/images/logo only.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.liyt.liytd"
     },
     "web": {
       "output": "static",
@@ -44,6 +45,19 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a2712cee-ea0a-44f1-8eea-41980e8da638"
+      }
+    },
+    "owner": "466tito123",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a2712cee-ea0a-44f1-8eea-41980e8da638"
     }
   }
 }

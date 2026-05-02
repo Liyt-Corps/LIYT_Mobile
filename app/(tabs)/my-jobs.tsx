@@ -7,26 +7,26 @@ import { AppHeader } from '@/components/AppHeader';
 import { JobCard } from '@/components/JobCard';
 import { Colors } from '@/constants/theme';
 import { RootState, AppDispatch } from '@/store/store';
-import { fetchDeliveries } from '@/store/slices/deliveriesSlice';
+import { fetchDeliveryHistory } from '@/store/slices/deliveriesSlice';
 
 export default function MyJobsScreen() {
     const dispatch = useDispatch<AppDispatch>();
     const [refreshing, setRefreshing] = useState(false);
-    const { deliveries, loading } = useSelector((state: RootState) => state.deliveries);
+    const { history, loading } = useSelector((state: RootState) => state.deliveries);
 
     useFocusEffect(
         useCallback(() => {
-            dispatch(fetchDeliveries());
+            dispatch(fetchDeliveryHistory());
         }, [dispatch])
     );
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        await dispatch(fetchDeliveries());
+        await dispatch(fetchDeliveryHistory());
         setRefreshing(false);
     }, [dispatch]);
 
-    const historyJobs = deliveries.filter(job => job.status !== 'pending');
+    const historyJobs = history || [];
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>

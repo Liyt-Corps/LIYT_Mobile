@@ -4,6 +4,7 @@ import { Delivery, DeliveryState } from '../../types';
 
 const initialState: DeliveryState = {
     deliveries: [],
+    history: [],
     currentDelivery: null,
     loading: false,
     error: null,
@@ -17,6 +18,18 @@ export const fetchDeliveries = createAsyncThunk(
             return response.data as Delivery[];
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Failed to fetch deliveries');
+        }
+    }
+);
+
+export const fetchDeliveryHistory = createAsyncThunk(
+    'deliveries/fetchDeliveryHistory',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/drivers/deliveries/history');
+            return response.data.data as Delivery[];
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to fetch delivery history');
         }
     }
 );
@@ -91,6 +104,18 @@ const deliveriesSlice = createSlice({
                 state.deliveries = action.payload;
             })
             .addCase(fetchDeliveries.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            })
+            .addCase(fetchDeliveryHistory.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchDeliveryHistory.fulfilled, (state, action) => {
+                state.loading = false;
+                state.history = action.payload;
+            })
+            .addCase(fetchDeliveryHistory.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
