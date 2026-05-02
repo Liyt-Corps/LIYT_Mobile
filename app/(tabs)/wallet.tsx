@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '@/components/AppHeader';
 import { Colors } from '@/constants/theme';
 import { mockDriverProfile, mockTransactions, mockDriverStats } from '@/data/mockData';
@@ -23,11 +24,8 @@ export default function WalletScreen() {
     }, []);
 
     return (
-        <SafeAreaView style={styles.container}>
-            <AppHeader
-                onNotificationPress={() => console.log('Notifications')}
-                onMenuPress={() => console.log('Menu')}
-            />
+        <SafeAreaView style={styles.container} edges={['top']}>
+            <AppHeader />
 
             <ScrollView 
                 style={styles.content} 

@@ -1,17 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { RootState } from '@/store/store';
 
-interface AppHeaderProps {
-    onNotificationPress?: () => void;
-    onMenuPress?: () => void;
-}
-
-export function AppHeader({ onNotificationPress, onMenuPress }: AppHeaderProps) {
+export function AppHeader() {
     const { user } = useSelector((state: RootState) => state.auth);
+    const router = useRouter();
     const userName = user?.full_name || user?.name || 'Driver';
 
     return (
@@ -28,15 +25,9 @@ export function AppHeader({ onNotificationPress, onMenuPress }: AppHeaderProps) 
             <View style={styles.rightSection}>
                 <TouchableOpacity
                     style={styles.iconButton}
-                    onPress={onNotificationPress}
+                    onPress={() => router.push('/notifications')}
                 >
                     <IconSymbol name="bell.fill" size={24} color={Colors.white} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.iconButton}
-                    onPress={onMenuPress}
-                >
-                    <IconSymbol name="line.3.horizontal" size={24} color={Colors.white} />
                 </TouchableOpacity>
             </View>
         </View>

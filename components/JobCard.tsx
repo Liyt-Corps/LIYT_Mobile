@@ -30,11 +30,12 @@ export function JobCard({
     onPress,
 }: JobCardProps) {
     const handlePress = () => {
+        // Only navigate if onPress callback doesn't handle it
         if (onPress) {
             onPress();
+        } else {
+            router.push(`/job-details?id=${jobId}` as any);
         }
-        // Use replace to avoid duplicate entries in navigation stack
-        router.push(`/job-details?id=${jobId}` as any);
     };
     return (
         <TouchableOpacity

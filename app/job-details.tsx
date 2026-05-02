@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +16,7 @@ export default function JobDetailsScreen() {
     const { currentDelivery, loading } = useSelector((state: RootState) => state.deliveries);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const insets = useSafeAreaInsets();
 
     useEffect(() => {
         if (jobId && !isFocused) {
@@ -229,16 +231,10 @@ export default function JobDetailsScreen() {
                     </MapView>
 
                     {/* Overlay Header - Back, Title, Share */}
-                    <View style={styles.overlayHeader}>
+                    <View style={[styles.overlayHeader, { paddingTop: Math.max(insets.top, 16) }]}>
                         <TouchableOpacity
                             style={styles.overlayButton}
-                            onPress={() => {
-                                if (router.canGoBack()) {
-                                    router.back();
-                                } else {
-                                    router.replace('/(tabs)');
-                                }
-                            }}
+                            onPress={() => router.replace('/(tabs)')}
                         >
                             <IconSymbol name="chevron.left" size={24} color={Colors.white} />
                         </TouchableOpacity>
@@ -494,7 +490,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 40,
         paddingBottom: 8,
         zIndex: 10,
         backgroundColor: 'rgba(24, 24, 27, 0.85)',
