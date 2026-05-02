@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { AppHeader } from '@/components/AppHeader';
@@ -32,11 +33,8 @@ export default function HomeScreen() {
   const currentJobs = deliveries.filter(job => ['accepted', 'picked_up', 'in_transit'].includes(job.status));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <AppHeader
-        onNotificationPress={() => console.log('Notifications')}
-        onMenuPress={() => console.log('Menu')}
-      />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <AppHeader />
 
       <ScrollView 
         style={styles.content} 

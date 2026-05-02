@@ -1,26 +1,36 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from 'expo-router';
 import { AppHeader } from '@/components/AppHeader';
+import { JobCard } from '@/components/JobCard';
 import { Colors } from '@/constants/theme';
-import { mockDriverProfile, mockTransactions } from '@/data/mockData';
+import { RootState, AppDispatch } from '@/store/store';
+import { fetchDeliveries } from '@/store/slices/deliveriesSlice';
 
 export default function MyJobsScreen() {
-    const completedJobs = mockTransactions.filter(t => t.type === 'earning');
+    const dispatch = useDispatch<AppDispatch>();
     const [refreshing, setRefreshing] = useState(false);
+    const { deliveries, loading } = useSelector((state: RootState) => state.deliveries);
+
+    useFocusEffect(
+        useCallback(() => {
+            dispatch(fetchDeliveries());
+        }, [dispatch])
+    );
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        // Simulate refresh - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await dispatch(fetchDeliveries());
         setRefreshing(false);
-    }, []);
+    }, [dispatch]);
+
+    const historyJobs = deliveries.filter(job => job.status !== 'pending');
 
     return (
-        <SafeAreaView style={styles.container}>
-            <AppHeader
-                onNotificationPress={() => console.log('Notifications')}
-                onMenuPress={() => console.log('Menu')}
-            />
+        <SafeAreaView style={styles.container} edges={['top']}>
+            <AppHeader />
 
             <ScrollView 
                 style={styles.content} 
@@ -36,39 +46,40 @@ export default function MyJobsScreen() {
             >
                 <Text style={styles.title}>My Jobs</Text>
                 <Text style={styles.subtitle}>
-                    {completedJobs.length} completed deliveries
+                    {historyJobs.length} active or completed deliveries
                 </Text>
+
+                {loading && !refreshing && (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color={Colors.accent} />
+                    </View>
+                )}
+
+                {!loading && historyJobs.length === 0 && (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyStateText}>No jobs history</Text>
+                        <Text style={styles.emptyStateSubtext}>
+                            You have no ongoing or completed jobs.
+                        </Text>
+                    </View>
+                )}
 
                 {/* Job History */}
                 <View style={styles.jobsList}>
-                    {completedJobs.map((job) => {
-                        const date = new Date(job.date);
-                        return (
-                            <View key={job.id} style={styles.jobCard}>
-                                <View style={styles.jobHeader}>
-                                    <View>
-                                        <Text style={styles.jobDate}>
-                                            {date.toLocaleDateString('en-US', {
-                                                month: 'short',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </Text>
-                                        <Text style={styles.jobDescription}>{job.description}</Text>
-                                    </View>
-                                    <View style={styles.earningsContainer}>
-                                        <Text style={styles.earningsAmount}>
-                                            +ETB {job.amount.toFixed(2)}
-                                        </Text>
-                                        <View style={styles.statusBadge}>
-                                            <Text style={styles.statusText}>{job.status}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-                        );
-                    })}
+                    {!loading && historyJobs.map((job) => (
+                        <JobCard
+                            key={job.id}
+                            jobId={job.id.toString()}
+                            pickupLocation={job.pickup?.city || job.pickup_address?.city || 'Pickup'}
+                            pickupAddress={job.pickup?.address1 || job.pickup_address?.address1 || job.pickup?.region || 'Pickup Location'}
+                            dropoffLocation={job.dropoff?.city || job.dropoff_address?.city || 'Drop-off'}
+                            dropoffAddress={job.dropoff?.address1 || job.dropoff_address?.address1 || job.dropoff?.region || 'Drop-off Location'}
+                            distance="0"
+                            estimatedTime="0 min"
+                            price={Number(job.price)}
+                            tags={[job.status.replace('_', ' ')]}
+                        />
+                    ))}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -99,45 +110,22 @@ const styles = StyleSheet.create({
     jobsList: {
         paddingBottom: 100,
     },
-    jobCard: {
-        backgroundColor: Colors.secondary,
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
+    loadingContainer: {
+        paddingVertical: 40,
+        alignItems: 'center',
     },
-    jobHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
+    emptyState: {
+        alignItems: 'center',
+        paddingVertical: 60,
     },
-    jobDate: {
+    emptyStateText: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: Colors.white,
+        marginBottom: 8,
+    },
+    emptyStateSubtext: {
         fontSize: 14,
         color: Colors.textSecondary,
-        marginBottom: 4,
-    },
-    jobDescription: {
-        fontSize: 16,
-        color: Colors.white,
-        fontWeight: '500',
-    },
-    earningsContainer: {
-        alignItems: 'flex-end',
-    },
-    earningsAmount: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: Colors.accent,
-        marginBottom: 6,
-    },
-    statusBadge: {
-        backgroundColor: Colors.success + '20',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    statusText: {
-        fontSize: 12,
-        color: Colors.success,
-        fontWeight: '600',
     },
 });
