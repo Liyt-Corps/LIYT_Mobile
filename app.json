@@ -23,9 +23,13 @@
       "package": "com.liyt.liytd"
     },
     "web": {
-      "output": "static",
+      "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
     },
+    "platforms": [
+      "android",
+      "ios"
+    ],
     "plugins": [
       "expo-router",
       [
