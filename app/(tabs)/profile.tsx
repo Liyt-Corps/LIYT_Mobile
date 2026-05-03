@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -7,12 +7,14 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { RootState, AppDispatch } from '@/store/store';
 import { fetchProfile, logout } from '@/store/slices/authSlice';
+import { useAppAlert } from '@/components/alerts/AppAlertProvider';
 
 export default function ProfileScreen() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
-    const { user, loading } = useSelector((state: RootState) => state.auth);
+    const { user } = useSelector((state: RootState) => state.auth);
     const [refreshing, setRefreshing] = useState(false);
+    const { showAlert } = useAppAlert();
 
     useFocusEffect(
         useCallback(() => {
@@ -27,10 +29,10 @@ export default function ProfileScreen() {
     }, [dispatch]);
 
     const handleLogout = () => {
-        Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
-            [
+        showAlert({
+            title: 'Logout',
+            message: 'Are you sure you want to logout?',
+            buttons: [
                 { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Logout',
@@ -40,8 +42,8 @@ export default function ProfileScreen() {
                         router.replace('/auth/login');
                     },
                 },
-            ]
-        );
+            ],
+        });
     };
 
     const name = user?.full_name || user?.name || 'Driver';

@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { register, clearError } from '@/store/slices/authSlice';
+import { register } from '@/store/slices/authSlice';
 import { AppDispatch, RootState } from '@/store/store';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
+import { useAppAlert } from '@/components/alerts/AppAlertProvider';
 
 export default function RegisterScreen() {
     const [fullName, setFullName] = useState('');
@@ -20,6 +21,7 @@ export default function RegisterScreen() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const { loading, error } = useSelector((state: RootState) => state.auth);
+    const { showAlert } = useAppAlert();
 
     const handleRegister = async () => {
         if (!email || !password || !fullName || !phone) {
@@ -40,9 +42,11 @@ export default function RegisterScreen() {
             password
         }));
         if (register.fulfilled.match(resultAction)) {
-            // Redirect to login page on success as requested
-            alert('Account created successfully! Please log in.');
-            router.push('/auth/login');
+            showAlert({
+                title: 'Success',
+                message: 'Account created successfully! Please log in.',
+                buttons: [{ text: 'OK', onPress: () => router.push('/auth/login') }],
+            });
         }
     };
 
