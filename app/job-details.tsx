@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { RootState, AppDispatch } from '@/store/store';
 import { fetchDeliveryById, acceptDelivery, pickupDelivery, completeDelivery, clearCurrentDelivery } from '@/store/slices/deliveriesSlice';
+import { useAppAlert } from '@/components/alerts/AppAlertProvider';
 
 export default function JobDetailsScreen() {
     const params = useLocalSearchParams();
@@ -17,6 +18,7 @@ export default function JobDetailsScreen() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
     const insets = useSafeAreaInsets();
+    const { showAlert } = useAppAlert();
 
     useEffect(() => {
         if (jobId && !isFocused) {
@@ -26,13 +28,13 @@ export default function JobDetailsScreen() {
         return () => {
             dispatch(clearCurrentDelivery());
         };
-    }, [dispatch, jobId]);
+    }, [dispatch, jobId, isFocused]);
 
     const handleAccept = async () => {
-        Alert.alert(
-            'Accept Job',
-            'Are you sure you want to accept this delivery?',
-            [
+        showAlert({
+            title: 'Accept Job',
+            message: 'Are you sure you want to accept this delivery?',
+            buttons: [
                 { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Accept',
@@ -40,25 +42,28 @@ export default function JobDetailsScreen() {
                         setIsProcessing(true);
                         try {
                             await dispatch(acceptDelivery(jobId)).unwrap();
-                            Alert.alert('Success', 'Job accepted successfully!', [
-                                { text: 'OK', onPress: () => router.back() }
-                            ]);
+                            await dispatch(fetchDeliveryById(jobId)).unwrap();
+                            showAlert({
+                                title: 'Success',
+                                message: 'Job accepted successfully!',
+                                buttons: [{ text: 'OK' }],
+                            });
                         } catch (error: any) {
-                            Alert.alert('Error', error || 'Failed to accept job');
+                            showAlert({ title: 'Error', message: error || 'Failed to accept job' });
                         } finally {
                             setIsProcessing(false);
                         }
                     },
                 },
-            ]
-        );
+            ],
+        });
     };
 
     const handlePickup = async () => {
-        Alert.alert(
-            'Mark as Picked Up',
-            'Confirm that you have picked up the package?',
-            [
+        showAlert({
+            title: 'Mark as Picked Up',
+            message: 'Confirm that you have picked up the package?',
+            buttons: [
                 { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Confirm',
@@ -66,23 +71,23 @@ export default function JobDetailsScreen() {
                         setIsProcessing(true);
                         try {
                             await dispatch(pickupDelivery(jobId)).unwrap();
-                            Alert.alert('Success', 'Package marked as picked up!');
+                            showAlert({ title: 'Success', message: 'Package marked as picked up!' });
                         } catch (error: any) {
-                            Alert.alert('Error', error || 'Failed to mark as picked up');
+                            showAlert({ title: 'Error', message: error || 'Failed to mark as picked up' });
                         } finally {
                             setIsProcessing(false);
                         }
                     },
                 },
-            ]
-        );
+            ],
+        });
     };
 
     const handleComplete = async () => {
-        Alert.alert(
-            'Complete Delivery',
-            'Confirm that the package has been delivered?',
-            [
+        showAlert({
+            title: 'Complete Delivery',
+            message: 'Confirm that the package has been delivered?',
+            buttons: [
                 { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Confirm',
@@ -90,18 +95,20 @@ export default function JobDetailsScreen() {
                         setIsProcessing(true);
                         try {
                             await dispatch(completeDelivery(jobId)).unwrap();
-                            Alert.alert('Success', 'Delivery completed!', [
-                                { text: 'OK', onPress: () => router.back() }
-                            ]);
+                            showAlert({
+                                title: 'Success',
+                                message: 'Delivery completed!',
+                                buttons: [{ text: 'OK', onPress: () => router.back() }],
+                            });
                         } catch (error: any) {
-                            Alert.alert('Error', error || 'Failed to complete delivery');
+                            showAlert({ title: 'Error', message: error || 'Failed to complete delivery' });
                         } finally {
                             setIsProcessing(false);
                         }
                     },
                 },
-            ]
-        );
+            ],
+        });
     };
 
     const job = currentDelivery;

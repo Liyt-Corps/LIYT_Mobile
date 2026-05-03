@@ -8,6 +8,7 @@ import { Provider, useDispatch, useSelector } from 'react-redux';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { store, RootState } from '@/store/store';
 import { loadUser } from '@/store/slices/authSlice';
+import { AppAlertProvider } from '@/components/alerts/AppAlertProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -42,7 +43,7 @@ function RootLayoutNav() {
       // Redirect to home if authenticated and in auth group
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, segments, isInitialized]);
+  }, [isAuthenticated, segments, isInitialized, router]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -60,7 +61,9 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <RootLayoutNav />
+      <AppAlertProvider>
+        <RootLayoutNav />
+      </AppAlertProvider>
     </Provider>
   );
 }
