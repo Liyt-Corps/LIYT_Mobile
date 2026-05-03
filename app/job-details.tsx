@@ -42,10 +42,11 @@ export default function JobDetailsScreen() {
                         setIsProcessing(true);
                         try {
                             await dispatch(acceptDelivery(jobId)).unwrap();
+                            await dispatch(fetchDeliveryById(jobId)).unwrap();
                             showAlert({
                                 title: 'Success',
                                 message: 'Job accepted successfully!',
-                                buttons: [{ text: 'OK', onPress: () => router.back() }],
+                                buttons: [{ text: 'OK' }],
                             });
                         } catch (error: any) {
                             showAlert({ title: 'Error', message: error || 'Failed to accept job' });
